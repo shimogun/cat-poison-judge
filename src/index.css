@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #F5C842;
+  --color-secondary: #FF6B9D;
+  --color-accent: #4CAF50;
+  --color-danger: #FF4444;
+  --color-caution: #FF9800;
+  --color-bg: #FFF9E6;
+}
+
+body {
+  margin: 0;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+}
