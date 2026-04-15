@@ -62,12 +62,20 @@ export function ResultCard({ result, capturedImage, onRetry }: Props) {
   const imageUrl = `data:image/jpeg;base64,${capturedImage}`
 
   const handleShare = useCallback(async () => {
-    const text = `🐱 ねこごはん判定器の結果\n\n${result.itemName}は猫にとって【${SAFETY_SHARE_LABEL[result.safety]}】\n${result.reason}\n\n`
+    const text = `ねこごはん判定器の結果\n\n${result.itemName}は猫にとって【${SAFETY_SHARE_LABEL[result.safety]}】\n${result.reason}\n\n`
     const url = window.location.origin
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: '🐱 ねこごはん判定器', text, url })
+        const res = await fetch('/icon_cat.png')
+        const blob = await res.blob()
+        const file = new File([blob], 'neko-gohan.png', { type: 'image/png' })
+
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ title: 'ねこごはん判定器', text, url, files: [file] })
+        } else {
+          await navigator.share({ title: 'ねこごはん判定器', text, url })
+        }
       } catch {
         // ユーザーがキャンセルした場合は何もしない
       }
