@@ -1,14 +1,17 @@
 /**
  * useCamera.ts
  * カメラ制御・撮影ロジックのカスタムフック
- * - getUserMedia でリアカメラ起動
+ * - getUserMedia でカメラ起動（フロント/リア切替対応）
  * - video ref / canvas ref の管理
  * - captureImage(): canvas に描画し base64(jpeg) を返す
+ * - flipCamera(): フロント/リアカメラを切り替え
  * - エラー種別の区別: NotAllowedError / NotFoundError / その他
  * - cleanup: アンマウント時にストリーム停止
  */
 
 import { useRef, useEffect, useState, useCallback } from 'react'
+
+export type FacingMode = 'environment' | 'user'
 
 type CameraErrorType = 'NotAllowedError' | 'NotFoundError' | 'UnknownError'
 
@@ -34,13 +37,26 @@ export function useCamera() {
   const streamRef = useRef<MediaStream | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isReady, setIsReady] = useState(false)
+  const [facingMode, setFacingMode] = useState<FacingMode>('environment')
 
   useEffect(() => {
+    let cancelled = false
+
     const startCamera = async () => {
+      streamRef.current?.getTracks().forEach((track) => track.stop())
+      streamRef.current = null
+      setIsReady(false)
+
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' },
+          video: { facingMode },
         })
+
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop())
+          return
+        }
+
         streamRef.current = stream
         if (videoRef.current) {
           videoRef.current.srcObject = stream
@@ -48,6 +64,7 @@ export function useCamera() {
         setIsReady(true)
         setError(null)
       } catch (err) {
+        if (cancelled) return
         const errorType = classifyCameraError(err)
         setError(CAMERA_ERROR_MESSAGES[errorType])
         setIsReady(false)
@@ -57,9 +74,14 @@ export function useCamera() {
     startCamera()
 
     return () => {
+      cancelled = true
       streamRef.current?.getTracks().forEach((track) => track.stop())
       streamRef.current = null
     }
+  }, [facingMode])
+
+  const flipCamera = useCallback(() => {
+    setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'))
   }, [])
 
   const captureImage = useCallback((): string | null => {
@@ -77,5 +99,5 @@ export function useCamera() {
     return dataUrl.split(',')[1] ?? null
   }, [])
 
-  return { videoRef, canvasRef, captureImage, error, isReady }
+  return { videoRef, canvasRef, captureImage, error, isReady, flipCamera, facingMode }
 }

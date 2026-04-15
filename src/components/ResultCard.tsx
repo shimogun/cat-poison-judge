@@ -1,95 +1,104 @@
 /**
  * ResultCard.tsx
- * 判定結果カード（アニメーション付き）
- * - safety の値に応じて背景色を切り替え（safe=緑, dangerous=赤, caution=オレンジ, unknown=グレー）
- * - resultCardAnimation でスライドイン表示
- * - 表示内容: 判定アイコン（✅/❌/⚠️/❓）+ itemName + reason + confidence
+ * 判定結果カード
+ * - 撮影画像を上部に表示
+ * - 判定バッジがオーバーラップ
+ * - 白背景のボディに食材名・理由ボックス
+ * - 「もう一度撮る」ボタン
  */
 
-import { motion } from 'framer-motion'
 import type { JudgmentResult, Safety } from '../types/judgment'
-import { resultCardAnimation, staggerContainer, iconPopAnimation } from '../constants/animations'
 
 interface Props {
   result: JudgmentResult
+  capturedImage: string
   onRetry: () => void
 }
 
-const SAFETY_ICON: Record<Safety, string> = {
-  safe: '✅',
-  dangerous: '❌',
-  caution: '⚠️',
-  unknown: '❓',
+interface SafetyConfig {
+  badgeClass: string
+  badgeLabel: string
+  reasonClass: string
+  icon: string
 }
 
-const SAFETY_LABEL: Record<Safety, string> = {
-  safe: '安全',
-  dangerous: '危険',
-  caution: '要注意',
-  unknown: '判定不能',
+const SAFETY_CONFIG: Record<Safety, SafetyConfig> = {
+  safe: {
+    badgeClass: 'bg-green text-white',
+    badgeLabel: '✅ 食べても大丈夫！',
+    reasonClass: 'bg-green-bg text-green-text',
+    icon: '✅',
+  },
+  dangerous: {
+    badgeClass: 'bg-red text-white',
+    badgeLabel: '🚫 食べさせちゃダメ！',
+    reasonClass: 'bg-red-bg text-red-text',
+    icon: '🚫',
+  },
+  caution: {
+    badgeClass: 'bg-orange text-white',
+    badgeLabel: '⚠️ 要注意',
+    reasonClass: 'bg-orange-bg text-orange-text',
+    icon: '⚠️',
+  },
+  unknown: {
+    badgeClass: 'bg-orange text-white',
+    badgeLabel: '❓ 判定できません',
+    reasonClass: 'bg-orange-bg text-orange-text',
+    icon: '❓',
+  },
 }
 
-const SAFETY_BG: Record<Safety, string> = {
-  safe: 'bg-accent',
-  dangerous: 'bg-danger',
-  caution: 'bg-caution',
-  unknown: 'bg-gray-400',
-}
+export function ResultCard({ result, capturedImage, onRetry }: Props) {
+  const config = SAFETY_CONFIG[result.safety]
+  const imageUrl = `data:image/jpeg;base64,${capturedImage}`
 
-const CONFIDENCE_LABEL: Record<JudgmentResult['confidence'], string> = {
-  high: '高',
-  medium: '中',
-  low: '低',
-}
-
-export function ResultCard({ result, onRetry }: Props) {
   return (
-    <motion.div
-      variants={staggerContainer}
-      initial="hidden"
-      animate="visible"
-      className="w-full max-w-lg mx-auto flex flex-col gap-4 px-4"
+    <div
+      className="w-full rounded-[var(--radius)] overflow-hidden border-[1.5px] border-pink-light"
+      style={{ animation: 'fadeUp 0.4s ease' }}
     >
-      <motion.div
-        variants={resultCardAnimation}
-        className={`${SAFETY_BG[result.safety]} rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-6 text-white`}
-      >
-        <motion.div
-          className="text-center mb-4"
-          initial={iconPopAnimation.initial}
-          animate={iconPopAnimation.animate}
-          transition={iconPopAnimation.transition}
+      {/* 画像セクション */}
+      <div className="relative h-[200px] overflow-hidden bg-pink-bg">
+        <img
+          src={imageUrl}
+          alt={result.itemName}
+          className="w-full h-full object-cover brightness-90"
+        />
+        <div
+          className={`absolute -bottom-[18px] left-1/2 -translate-x-1/2
+                      px-7 py-2.5 rounded-full text-[15px] font-bold
+                      whitespace-nowrap flex items-center gap-1.5
+                      shadow-[0_4px_16px_rgba(0,0,0,0.15)] z-[2]
+                      ${config.badgeClass}`}
         >
-          <span className="text-5xl">{SAFETY_ICON[result.safety]}</span>
-        </motion.div>
+          {config.badgeLabel}
+        </div>
+      </div>
 
-        <h2 className="font-[family-name:var(--font-display)] font-bold text-xl text-center mb-1">
+      {/* ボディ */}
+      <div className="pt-[30px] px-[18px] pb-5 bg-white">
+        <h2 className="text-xl font-bold text-center mb-3.5 text-text">
           {result.itemName}
         </h2>
 
-        <p className="text-center text-lg font-semibold mb-3">
-          {SAFETY_LABEL[result.safety]}
-        </p>
-
-        <p className="text-center text-white/90 text-sm leading-relaxed">
-          {result.reason}
-        </p>
-
-        <div className="text-center mt-3">
-          <span className="text-xs px-2 py-0.5 rounded-full bg-surface text-text-main">
-            確信度: {CONFIDENCE_LABEL[result.confidence]}
-          </span>
+        <div
+          className={`rounded-[var(--radius-sm)] px-4 py-3.5 text-sm leading-[1.7]
+                      flex gap-2.5 items-start mb-4 ${config.reasonClass}`}
+        >
+          <span className="text-xl shrink-0">{config.icon}</span>
+          <span>{result.reason}</span>
         </div>
-      </motion.div>
 
-      <motion.button
-        variants={resultCardAnimation}
-        onClick={onRetry}
-        className="bg-primary text-white font-bold py-3 px-6 rounded-[var(--radius-btn)] shadow-md
-                   active:shadow-sm transition-shadow"
-      >
-        🔄 もう一度判定する
-      </motion.button>
-    </motion.div>
+        <button
+          onClick={onRetry}
+          className="w-full py-3.5 rounded-[var(--radius-sm)] border-[1.5px] border-pink-light
+                     bg-white text-pink-deep text-sm font-bold cursor-pointer
+                     hover:bg-pink-bg transition-colors"
+        >
+          📷 もう一度撮る
+        </button>
+      </div>
+    </div>
   )
 }

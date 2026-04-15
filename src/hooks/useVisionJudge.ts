@@ -56,7 +56,7 @@ export function useVisionJudge() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const judge = useCallback(async (base64Image: string) => {
+  const judge = useCallback(async (base64Image: string): Promise<JudgmentResult | null> => {
     setIsLoading(true)
     setError(null)
     setResult(null)
@@ -86,14 +86,17 @@ export function useVisionJudge() {
       const textBlock = response.content.find((block) => block.type === 'text')
       if (!textBlock || textBlock.type !== 'text') {
         setResult(UNKNOWN_RESULT)
-        return
+        return UNKNOWN_RESULT
       }
 
-      setResult(parseJudgmentResponse(textBlock.text))
+      const judgment = parseJudgmentResponse(textBlock.text)
+      setResult(judgment)
+      return judgment
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'API呼び出しに失敗しました'
       setError(message)
+      return null
     } finally {
       setIsLoading(false)
     }
