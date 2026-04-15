@@ -1,16 +1,13 @@
 /**
  * useVisionJudge.ts
- * Claude Haiku 4.5 Vision API 呼び出しカスタムフック
- * - @anthropic-ai/sdk を使用
- * - base64 画像を受け取り判定リクエストを送信
+ * 判定APIを呼び出すカスタムフック
+ * - /api/judge エンドポイントにPOST（サーバーレス関数経由）
  * - レスポンス JSON をパースして JudgmentResult 型に変換
  * - パース失敗時は safety: 'unknown' を返す
  */
 
 import { useState, useCallback } from 'react'
-import Anthropic from '@anthropic-ai/sdk'
 import type { JudgmentResult } from '../types/judgment'
-import { MODEL_NAME, MAX_TOKENS, SYSTEM_PROMPT } from '../constants/catFoodPrompt'
 
 const VALID_SAFETY: readonly string[] = ['safe', 'dangerous', 'caution', 'unknown']
 const VALID_CONFIDENCE: readonly string[] = ['high', 'medium', 'low']
@@ -21,11 +18,6 @@ const UNKNOWN_RESULT: JudgmentResult = {
   reason: '判定できませんでした',
   confidence: 'low',
 }
-
-const client = new Anthropic({
-  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY as string,
-  dangerouslyAllowBrowser: true,
-})
 
 function isValidJudgment(value: unknown): value is JudgmentResult {
   if (typeof value !== 'object' || value === null) return false
@@ -62,34 +54,26 @@ export function useVisionJudge() {
     setResult(null)
 
     try {
-      const response = await client.messages.create({
-        model: MODEL_NAME,
-        max_tokens: MAX_TOKENS,
-        system: SYSTEM_PROMPT,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'image',
-                source: {
-                  type: 'base64',
-                  media_type: 'image/jpeg',
-                  data: base64Image,
-                },
-              },
-            ],
-          },
-        ],
+      const response = await fetch('/api/judge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64Image }),
       })
 
-      const textBlock = response.content.find((block) => block.type === 'text')
-      if (!textBlock || textBlock.type !== 'text') {
-        setResult(UNKNOWN_RESULT)
-        return UNKNOWN_RESULT
+      if (!response.ok) {
+        const errorData: unknown = await response.json()
+        const msg = typeof errorData === 'object' && errorData !== null && 'error' in errorData
+          ? String((errorData as Record<string, unknown>).error)
+          : 'API呼び出しに失敗しました'
+        throw new Error(msg)
       }
 
-      const judgment = parseJudgmentResponse(textBlock.text)
+      const data: unknown = await response.json()
+      const text = typeof data === 'object' && data !== null && 'text' in data
+        ? String((data as Record<string, unknown>).text)
+        : ''
+
+      const judgment = parseJudgmentResponse(text)
       setResult(judgment)
       return judgment
     } catch (err) {
