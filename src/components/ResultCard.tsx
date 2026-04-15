@@ -8,7 +8,7 @@
 
 import { motion } from 'framer-motion'
 import type { JudgmentResult, Safety } from '../types/judgment'
-import { resultCardAnimation, staggerContainer } from '../constants/animations'
+import { resultCardAnimation, staggerContainer, iconPopAnimation } from '../constants/animations'
 
 interface Props {
   result: JudgmentResult
@@ -48,17 +48,22 @@ export function ResultCard({ result, onRetry }: Props) {
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
-      className="w-full max-w-md mx-auto flex flex-col gap-4"
+      className="w-full max-w-lg mx-auto flex flex-col gap-4 px-4"
     >
       <motion.div
         variants={resultCardAnimation}
-        className={`${SAFETY_BG[result.safety]} rounded-2xl p-6 text-white shadow-lg`}
+        className={`${SAFETY_BG[result.safety]} rounded-[var(--radius-card)] shadow-[var(--shadow-card)] p-6 text-white`}
       >
-        <div className="text-center mb-4">
+        <motion.div
+          className="text-center mb-4"
+          initial={iconPopAnimation.initial}
+          animate={iconPopAnimation.animate}
+          transition={iconPopAnimation.transition}
+        >
           <span className="text-5xl">{SAFETY_ICON[result.safety]}</span>
-        </div>
+        </motion.div>
 
-        <h2 className="text-2xl font-bold text-center mb-1">
+        <h2 className="font-[family-name:var(--font-display)] font-bold text-xl text-center mb-1">
           {result.itemName}
         </h2>
 
@@ -70,15 +75,17 @@ export function ResultCard({ result, onRetry }: Props) {
           {result.reason}
         </p>
 
-        <p className="text-center text-white/70 text-xs mt-3">
-          確信度: {CONFIDENCE_LABEL[result.confidence]}
-        </p>
+        <div className="text-center mt-3">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-surface text-text-main">
+            確信度: {CONFIDENCE_LABEL[result.confidence]}
+          </span>
+        </div>
       </motion.div>
 
       <motion.button
         variants={resultCardAnimation}
         onClick={onRetry}
-        className="bg-primary text-white font-bold py-3 px-6 rounded-full shadow-md
+        className="bg-primary text-white font-bold py-3 px-6 rounded-[var(--radius-btn)] shadow-md
                    active:shadow-sm transition-shadow"
       >
         🔄 もう一度判定する

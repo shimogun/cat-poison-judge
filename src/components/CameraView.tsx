@@ -18,8 +18,8 @@ interface Props {
 
 export function CameraView({ videoRef, canvasRef, onCapture, disabled }: Props) {
   return (
-    <div className="relative flex flex-col items-center gap-6">
-      <div className="relative w-full max-w-md aspect-[3/4] rounded-2xl overflow-hidden bg-black shadow-lg">
+    <div className="relative flex flex-col items-center">
+      <div className="relative w-full aspect-[3/4] rounded-[var(--radius-card)] overflow-hidden bg-black shadow-[var(--shadow-card)]">
         <video
           ref={videoRef}
           autoPlay
@@ -27,24 +27,25 @@ export function CameraView({ videoRef, canvasRef, onCapture, disabled }: Props) 
           muted
           className="w-full h-full object-cover"
         />
+
+        <motion.button
+          variants={shutterAnimation}
+          initial="idle"
+          whileTap="tap"
+          onClick={onCapture}
+          disabled={disabled}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2
+                     w-20 h-20 rounded-full bg-secondary text-white text-3xl shadow-lg
+                     flex items-center justify-center
+                     disabled:opacity-40 disabled:cursor-not-allowed
+                     active:shadow-md transition-shadow"
+          aria-label="撮影"
+        >
+          📷
+        </motion.button>
       </div>
 
       <canvas ref={canvasRef} className="hidden" />
-
-      <motion.button
-        variants={shutterAnimation}
-        initial="idle"
-        whileTap="tap"
-        onClick={onCapture}
-        disabled={disabled}
-        className="w-20 h-20 rounded-full bg-secondary text-white text-3xl shadow-lg
-                   flex items-center justify-center
-                   disabled:opacity-40 disabled:cursor-not-allowed
-                   active:shadow-md transition-shadow"
-        aria-label="撮影"
-      >
-        📷
-      </motion.button>
     </div>
   )
 }

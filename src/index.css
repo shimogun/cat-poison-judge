@@ -7,6 +7,18 @@
   --color-danger: #FF4444;
   --color-caution: #FF9800;
   --color-bg: #FFF9E6;
+  --color-bg-card: #FFFFFF;
+  --color-text-main: #2D2D2D;
+  --color-text-sub: #6B6B6B;
+  --color-border: #E8E0D0;
+  --color-surface: #FFF3CD;
+}
+
+:root {
+  --radius-card: 1.25rem;
+  --radius-btn: 9999px;
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --font-display: 'Zen Maru Gothic', 'Rounded Mplus 1c', sans-serif;
 }
 
 body {

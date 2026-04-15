@@ -7,13 +7,11 @@
 
 export function Header() {
   return (
-    <header className="bg-primary py-4 px-4 text-center shadow-md">
-      <h1 className="text-3xl font-extrabold text-white drop-shadow-md tracking-wide">
-        🐱 ねこごはん判定器
+    <header className="bg-primary h-14 px-4 sm:px-8 flex items-center justify-center border-b border-border">
+      <h1 className="font-[family-name:var(--font-display)] font-bold text-2xl text-white drop-shadow-md tracking-wide">
+        <span className="inline-block animate-bounce">🐱</span>
+        {' '}ねこごはん判定器
       </h1>
-      <p className="text-sm text-white/80 mt-1">
-        カメラで撮って、猫が食べて大丈夫かチェック！
-      </p>
     </header>
   )
 }
