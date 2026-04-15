@@ -27,13 +27,12 @@ export function CameraView({
   canvasRef,
   onCapture,
   disabled,
-  facingMode,
   onFlipCamera,
   recentImageUrl,
   recentSafetyColor,
   onShowRecent,
 }: Props) {
-  const modeLabel = facingMode === 'environment' ? '📷 アウトカメラ' : '🤳 インカメラ'
+
 
   return (
     <div className="flex flex-col bg-gold flex-1 sm:flex-none">
@@ -50,11 +49,6 @@ export function CameraView({
         {/* ヒントテキスト */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 text-gold-light text-xs px-4 py-1.5 rounded-full backdrop-blur-sm z-10 whitespace-nowrap">
           🍖 食べ物をフレームに入れてね
-        </div>
-
-        {/* カメラモードバッジ（モバイルのみ） */}
-        <div className="absolute top-4 right-4 bg-gold/20 border border-gold/30 text-gold text-[11px] px-2.5 py-1 rounded-full z-10 sm:hidden">
-          {modeLabel}
         </div>
 
         {/* フォーカスマーク */}

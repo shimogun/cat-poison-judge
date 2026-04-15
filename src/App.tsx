@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import type { AppState } from './types/judgment'
+import type { JudgmentResult } from './types/judgment'
 import { useCamera } from './hooks/useCamera'
 import { useVisionJudge } from './hooks/useVisionJudge'
 import { Header } from './components/Header'
@@ -27,10 +28,11 @@ function formatTime(date: Date): string {
 
 function App() {
   const [appState, setAppState] = useState<AppState>('idle')
-  const [capturedImage, setCapturedImage] = useState<string | null>(null)
+  const [displayResult, setDisplayResult] = useState<JudgmentResult | null>(null)
+  const [displayImage, setDisplayImage] = useState<string | null>(null)
   const [history, setHistory] = useState<HistoryItem[]>([])
   const { videoRef, canvasRef, captureImage, error: cameraError, isReady, flipCamera, facingMode } = useCamera()
-  const { result, isLoading, error: apiError, judge } = useVisionJudge()
+  const { isLoading, error: apiError, judge } = useVisionJudge()
 
   const handleCapture = useCallback(async () => {
     setAppState('capturing')
@@ -40,22 +42,19 @@ function App() {
       return
     }
 
-    setCapturedImage(base64)
     setAppState('analyzing')
     const judgment = await judge(base64)
 
     if (judgment) {
-      setHistory((prev) =>
-        [
-          {
-            itemName: judgment.itemName,
-            safety: judgment.safety,
-            time: formatTime(new Date()),
-            imageUrl: `data:image/jpeg;base64,${base64}`,
-          },
-          ...prev,
-        ].slice(0, MAX_HISTORY),
-      )
+      const item: HistoryItem = {
+        result: judgment,
+        time: formatTime(new Date()),
+        imageUrl: `data:image/jpeg;base64,${base64}`,
+        capturedImage: base64,
+      }
+      setHistory((prev) => [item, ...prev].slice(0, MAX_HISTORY))
+      setDisplayResult(judgment)
+      setDisplayImage(base64)
       setAppState('result')
     } else {
       setAppState('error')
@@ -67,13 +66,19 @@ function App() {
   }, [])
 
   const handleShowRecent = useCallback(() => {
-    if (result && capturedImage) {
+    if (displayResult && displayImage) {
       setAppState('result')
     }
-  }, [result, capturedImage])
+  }, [displayResult, displayImage])
+
+  const handleHistoryItemClick = useCallback((item: HistoryItem) => {
+    setDisplayResult(item.result)
+    setDisplayImage(item.capturedImage)
+    setAppState('result')
+  }, [])
 
   const displayError = cameraError ?? apiError
-  const showResult = appState === 'result' && result && capturedImage
+  const showResult = appState === 'result' && displayResult && displayImage
   const showError = appState === 'error'
 
   const latestHistory = history.length > 0 ? history[0] : null
@@ -103,7 +108,7 @@ function App() {
             facingMode={facingMode}
             onFlipCamera={flipCamera}
             recentImageUrl={latestHistory?.imageUrl ?? null}
-            recentSafetyColor={latestHistory ? SAFETY_DOT_COLOR[latestHistory.safety] : null}
+            recentSafetyColor={latestHistory ? SAFETY_DOT_COLOR[latestHistory.result.safety] : null}
             onShowRecent={handleShowRecent}
           />
           <AnimatePresence>
@@ -116,8 +121,8 @@ function App() {
       {showResult && (
         <div className="mx-auto w-full max-w-[480px] sm:max-w-[640px] px-4 sm:px-5 pb-10 pt-4 flex flex-col gap-5">
           <ResultCard
-            result={result}
-            capturedImage={capturedImage}
+            result={displayResult}
+            capturedImage={displayImage}
             onRetry={handleRetry}
           />
 
@@ -126,7 +131,7 @@ function App() {
               <div className="text-sm font-bold text-text-muted mb-3 pl-1">
                 🕘 最近チェックした食材
               </div>
-              <HistoryList items={history} />
+              <HistoryList items={history} onItemClick={handleHistoryItemClick} />
             </div>
           )}
         </div>
