@@ -13,10 +13,10 @@ import type { HistoryItem } from './components/HistoryList'
 const MAX_HISTORY = 10
 
 const SAFETY_DOT_COLOR: Record<string, string> = {
-  safe: 'bg-green',
-  dangerous: 'bg-red',
-  caution: 'bg-orange',
-  unknown: 'bg-orange',
+  safe: 'bg-safe',
+  dangerous: 'bg-danger',
+  caution: 'bg-gold',
+  unknown: 'bg-smoke',
 }
 
 function formatTime(date: Date): string {
@@ -86,7 +86,7 @@ function App() {
       {/* エラー表示 */}
       {displayError && appState !== 'analyzing' && (
         <div className="mx-auto w-full max-w-[480px] sm:max-w-[640px] px-4 mt-3">
-          <div className="bg-red-bg border border-red text-red-text rounded-[var(--radius-sm)] px-4 py-3 text-center text-sm">
+          <div className="bg-danger-bg border border-danger text-danger-text rounded-[var(--radius-sm)] px-4 py-3 text-center text-sm">
             {displayError}
           </div>
         </div>
@@ -135,14 +135,14 @@ function App() {
       {/* エラー画面 */}
       {showError && (
         <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4">
-          <p className="text-red font-bold text-center">
+          <p className="text-danger font-bold text-center">
             エラーが発生しました。もう一度お試しください。
           </p>
           <button
             onClick={handleRetry}
-            className="w-full max-w-xs py-3.5 rounded-[var(--radius-sm)] border-[1.5px] border-pink-light
-                       bg-white text-pink-deep text-sm font-bold cursor-pointer
-                       hover:bg-pink-bg transition-colors"
+            className="w-full max-w-xs py-3.5 rounded-[var(--radius-sm)] border-[1.5px] border-charcoal-light
+                       bg-charcoal text-gold text-sm font-bold cursor-pointer
+                       hover:bg-charcoal-light transition-colors"
           >
             📷 もう一度撮る
           </button>

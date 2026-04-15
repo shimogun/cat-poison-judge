@@ -3,7 +3,7 @@
  * 判定結果カード
  * - 撮影画像を上部に表示
  * - 判定バッジがオーバーラップ
- * - 白背景のボディに食材名・理由ボックス
+ * - 胸毛ホワイト背景のボディに食材名・理由ボックス
  * - 「もう一度撮る」ボタン
  */
 
@@ -24,27 +24,27 @@ interface SafetyConfig {
 
 const SAFETY_CONFIG: Record<Safety, SafetyConfig> = {
   safe: {
-    badgeClass: 'bg-green text-white',
+    badgeClass: 'bg-safe text-white',
     badgeLabel: '✅ 食べても大丈夫！',
-    reasonClass: 'bg-green-bg text-green-text',
+    reasonClass: 'bg-safe-bg text-safe-text',
     icon: '✅',
   },
   dangerous: {
-    badgeClass: 'bg-red text-white',
+    badgeClass: 'bg-danger text-white',
     badgeLabel: '🚫 食べさせちゃダメ！',
-    reasonClass: 'bg-red-bg text-red-text',
+    reasonClass: 'bg-danger-bg text-danger-text',
     icon: '🚫',
   },
   caution: {
-    badgeClass: 'bg-orange text-white',
+    badgeClass: 'bg-caution text-caution-text',
     badgeLabel: '⚠️ 要注意',
-    reasonClass: 'bg-orange-bg text-orange-text',
+    reasonClass: 'bg-warm-white text-caution-text',
     icon: '⚠️',
   },
   unknown: {
-    badgeClass: 'bg-orange text-white',
+    badgeClass: 'bg-smoke text-white',
     badgeLabel: '❓ 判定できません',
-    reasonClass: 'bg-orange-bg text-orange-text',
+    reasonClass: 'bg-smoke-bg text-smoke',
     icon: '❓',
   },
 }
@@ -55,11 +55,11 @@ export function ResultCard({ result, capturedImage, onRetry }: Props) {
 
   return (
     <div
-      className="w-full rounded-[var(--radius)] overflow-hidden border-[1.5px] border-pink-light"
+      className="w-full rounded-[var(--radius)] overflow-hidden border border-charcoal-light"
       style={{ animation: 'fadeUp 0.4s ease' }}
     >
       {/* 画像セクション */}
-      <div className="relative h-[200px] overflow-hidden bg-pink-bg">
+      <div className="relative h-[200px] overflow-hidden bg-charcoal">
         <img
           src={imageUrl}
           alt={result.itemName}
@@ -69,7 +69,7 @@ export function ResultCard({ result, capturedImage, onRetry }: Props) {
           className={`absolute -bottom-[18px] left-1/2 -translate-x-1/2
                       px-7 py-2.5 rounded-full text-[15px] font-bold
                       whitespace-nowrap flex items-center gap-1.5
-                      shadow-[0_4px_16px_rgba(0,0,0,0.15)] z-[2]
+                      shadow-[0_4px_16px_rgba(0,0,0,0.25)] z-[2]
                       ${config.badgeClass}`}
         >
           {config.badgeLabel}
@@ -77,8 +77,8 @@ export function ResultCard({ result, capturedImage, onRetry }: Props) {
       </div>
 
       {/* ボディ */}
-      <div className="pt-[30px] px-[18px] pb-5 bg-white">
-        <h2 className="text-xl font-bold text-center mb-3.5 text-text">
+      <div className="pt-[30px] px-[18px] pb-5 bg-warm-white">
+        <h2 className="text-xl font-bold text-center mb-3.5 text-charcoal-deep">
           {result.itemName}
         </h2>
 
@@ -92,9 +92,9 @@ export function ResultCard({ result, capturedImage, onRetry }: Props) {
 
         <button
           onClick={onRetry}
-          className="w-full py-3.5 rounded-[var(--radius-sm)] border-[1.5px] border-pink-light
-                     bg-white text-pink-deep text-sm font-bold cursor-pointer
-                     hover:bg-pink-bg transition-colors"
+          className="w-full py-3.5 rounded-[var(--radius-sm)] border-[1.5px] border-charcoal-light
+                     bg-warm-white text-charcoal text-sm font-bold cursor-pointer
+                     hover:bg-warm-white-deep transition-colors"
         >
           📷 もう一度撮る
         </button>

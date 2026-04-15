@@ -18,16 +18,16 @@ interface Props {
 }
 
 const DOT_COLOR: Record<Safety, string> = {
-  safe: 'bg-green',
-  dangerous: 'bg-red',
-  caution: 'bg-orange',
-  unknown: 'bg-orange',
+  safe: 'bg-safe',
+  dangerous: 'bg-danger',
+  caution: 'bg-gold',
+  unknown: 'bg-smoke',
 }
 
 export function HistoryList({ items }: Props) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-6 text-text-muted text-[13px] bg-pink-bg rounded-[var(--radius)]">
+      <div className="text-center py-6 text-smoke text-[13px] bg-charcoal-light rounded-[var(--radius)]">
         まだ履歴がありません
       </div>
     )
@@ -38,9 +38,9 @@ export function HistoryList({ items }: Props) {
       {items.map((item, index) => (
         <div
           key={`${item.itemName}-${item.time}-${index}`}
-          className="flex items-center gap-3 py-3 px-1 border-b border-black/[0.06] last:border-b-0"
+          className="flex items-center gap-3 py-3 px-1 border-b border-white/[0.06] last:border-b-0"
         >
-          <div className="w-[46px] h-[46px] rounded-[12px] bg-pink-bg overflow-hidden shrink-0">
+          <div className="w-[46px] h-[46px] rounded-[12px] bg-charcoal-light overflow-hidden shrink-0">
             <img
               src={item.imageUrl}
               alt={item.itemName}
@@ -48,10 +48,10 @@ export function HistoryList({ items }: Props) {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-text truncate">
+            <div className="text-sm font-medium text-warm-white truncate">
               {item.itemName}
             </div>
-            <div className="text-[11px] text-text-muted mt-0.5">{item.time}</div>
+            <div className="text-[11px] text-smoke mt-0.5">{item.time}</div>
           </div>
           <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${DOT_COLOR[item.safety]}`} />
         </div>
