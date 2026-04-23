@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import { Analytics } from '@vercel/analytics/react'
 import type { AppState } from './types/judgment'
 import type { JudgmentResult } from './types/judgment'
 import { useCamera } from './hooks/useCamera'
@@ -153,6 +154,8 @@ function App() {
           </button>
         </div>
       )}
+
+      <Analytics />
     </div>
   )
 }
